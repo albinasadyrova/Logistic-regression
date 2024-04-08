@@ -16,9 +16,6 @@ def main():
     y_test_binary = (y_test == 5).astype(int)
 
     # Метод k ближайших соседей (KNN)
-    def euclidean_distance(x1, x2):
-        return np.sqrt(np.sum((x1 - x2)**2))
-
     class KNNClassifier:
         def __init__(self, k=3):
             self.k = k
@@ -32,14 +29,20 @@ def main():
             return np.array(y_pred)
 
         def _predict(self, x):
-            distances = [euclidean_distance(x, x_train) for x_train in self.X_train]
+            distances = [self._euclidean_distance(x, x_train) for x_train in self.X_train]
             k_indices = np.argsort(distances)[:self.k]
             k_nearest_labels = [self.y_train[i] for i in k_indices]
             most_common = np.bincount(k_nearest_labels).argmax()
             return most_common
 
+        def _euclidean_distance(self, x1, x2):
+            return np.sqrt(np.sum((x1 - x2)**2))
+
+    # Значения k для тестирования
     k_values = [3, 5, 7, 9]
+
     for k in k_values:
+        # KNN с определенным значением k
         knn = KNNClassifier(k=k)
         knn.fit(X_train, y_train)
         y_pred_knn = knn.predict(X_test)
@@ -77,12 +80,16 @@ def main():
             y_pred_class = [1 if i > 0.5 else 0 for i in y_pred]
             return np.array(y_pred_class)
 
-    # Обучение и оценка логистической регрессии
-    logreg = LogisticRegression()
-    logreg.fit(X_train, y_train_binary)
-    y_pred_logreg = logreg.predict(X_test)
-    accuracy_logreg = accuracy_score(y_test_binary, y_pred_logreg)
-    print(f"Логистическая регрессия: Точность на тестовом наборе данных: {accuracy_logreg:.2f}")
+    # Значения скорости обучения для тестирования
+    learning_rates = [0.001, 0.01, 0.1]
+
+    for learning_rate in learning_rates:
+        # Логистическая регрессия с определенной скоростью обучения
+        logreg = LogisticRegression(learning_rate=learning_rate)
+        logreg.fit(X_train, y_train_binary)
+        y_pred_logreg = logreg.predict(X_test)
+        accuracy_logreg = accuracy_score(y_test_binary, y_pred_logreg)
+        print(f"Логистическая регрессия (learning_rate={learning_rate}): Точность на тестовом наборе данных: {accuracy_logreg:.2f}")
 
 if __name__ == "__main__":
     main()
